@@ -59,9 +59,7 @@ def sendMessage(message:str,messageType,mySocket:socket.socket):
 def reciveMessage(mySocket:socket.socket):
 
     #get socket type length
-    x = mySocket.recv(1).decode()
-    print(x)    
-    messageTypeLength:int = int(x)
+    messageTypeLength:int = int(mySocket.recv(1).decode())
 
     #get the socket type
     messageType = mySocket.recv(messageTypeLength).decode()    
