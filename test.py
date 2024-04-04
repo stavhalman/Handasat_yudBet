@@ -1,7 +1,6 @@
 
 import cv2
   
-
 cam_port = 0
 cam = cv2.VideoCapture(cam_port) 
   
