@@ -1,7 +1,16 @@
 import socket
+import cv2
 
 def takePicture():
-    print("Take picture")
+    cam_port = 0
+    cam = cv2.VideoCapture(cam_port) 
+    
+    result, image = cam.read() 
+    
+    if result: 
+
+        cv2.imwrite("Picture.png", image) 
+
 
 def moveTo(x,y):
     print("Move to ",x," ",y)
