@@ -5,6 +5,9 @@ windowHight = 480
 windowLength = 640
 # load yolov8 model
 model = YOLO('best.pt')
+  
+
+  
 
 # load video
 video_path = './test.mp4'
