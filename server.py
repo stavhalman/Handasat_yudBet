@@ -15,6 +15,6 @@ clientSocket,clientAddress = RPISocket.accept()
 
 
 protocol.sendMessage("takePicture()","do",clientSocket)
-protocol.sendMessage('sendMessage("Picture.png","picture",UDPClient)',"do",clientSocket)
+protocol.sendMessage('sendMessage("Picture.png","picture",mySocket)',"do",clientSocket)
 
 protocol.reciveMessage(clientSocket)
