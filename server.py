@@ -13,10 +13,8 @@ print("server is up")
 RPISocket.listen()
 clientSocket,clientAddress = RPISocket.accept()
 
-protocol.reciveMessage(clientSocket)
 
 protocol.sendMessage("takePicture()","do",clientSocket)
+protocol.sendMessage('sendMessage("Picture.png","picture",UDPClient)',"do",clientSocket)
 
-protocol.sendMessage('itaygaming.png',"picture",clientSocket)
-
-
+protocol.reciveMessage(clientSocket)
