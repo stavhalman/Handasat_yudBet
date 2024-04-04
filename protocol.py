@@ -73,6 +73,6 @@ def reciveMessage(mySocket:socket.socket):
             data += mySocket.recv(1024)
 
         #save picture
-        with open ('output_image.jpg','wb') as file:
+        with open ('Handasat_yudBet/output_image.jpg','wb') as file:
             file.write(data)
 
