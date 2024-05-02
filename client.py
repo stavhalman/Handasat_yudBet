@@ -1,7 +1,7 @@
 import socket
 import protocol
 import cv2
-
+import time
 from ultralytics import YOLO
 
 
@@ -47,3 +47,6 @@ if results[0] != None:
 
 #save picture
 cv2.imwrite("AfterCode.png", frame_)
+
+cv2.imshow("frame",frame_)
+time.sleep(10)

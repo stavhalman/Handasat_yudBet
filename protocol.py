@@ -72,7 +72,7 @@ def reciveMessage(mySocket:socket.socket):
     messageTypeLength:int = int(mySocket.recv(1).decode())
 
     #get the socket type
-    messageType = mySocket.recv(messageTypeLength).decode()    
+    messageType = mySocket.recv(messageTypeLength).decode()  
 
     if messageType == "do":
 
