@@ -3,6 +3,7 @@ import cv2
 from ultralytics import YOLO
 import pygame
 import classes
+import time
 
 def takePicture():
 
