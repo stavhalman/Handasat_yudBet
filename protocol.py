@@ -62,6 +62,7 @@ def sendMessage(message:str,messageType,mySocket:socket.socket):
     
     #send message
     mySocket.send(message)
+    print("sent")
 
 #recive a socket and recive a message from it, acts acording to message type
 def reciveMessage(mySocket:socket.socket):
