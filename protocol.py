@@ -102,7 +102,7 @@ def showPicture():
 
     frame = cv2.imread(video_path)
 
-    results = model.track(frame, persist=True)
+    results = model.track(frame, persist=True, conf = 0.5, iou = 0.5)
 
     frame_ = results[0].plot()
     
