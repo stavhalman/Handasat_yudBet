@@ -10,8 +10,8 @@ model = YOLO('best.pt')
   
 
 # load video
-video_path = './test.mp4'
-cap = cv2.VideoCapture(1)
+video_path = 'Picture.png'
+cap = cv2.VideoCapture(0)
 
 ret = True
 get = True
