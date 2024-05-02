@@ -92,6 +92,7 @@ def reciveMessage(mySocket:socket.socket):
         #save picture
         with open ('Picture.png','wb') as file:
             file.write(data)
+    print("recieved")
 
 def showPicture(screen):
     windowHight = 480
@@ -130,9 +131,6 @@ def showPicture(screen):
 
     screen.blit(pygame.image.load('AfterCode.png'), (0, 0))
 
-    while True:
-        if cv2.waitKey(25) & 0xFF == ord('q'):
-            break
 
 def button(x,y,w,h,buttonText,screen, action):
     font = pygame.font.SysFont('freesanbold.ttf', 50)
@@ -145,9 +143,12 @@ def button(x,y,w,h,buttonText,screen, action):
 def refresh(UDPClient,screen):
     sendMessage("takePicture()","do",UDPClient)
     sendMessage('sendMessage("Picture.png","picture",mySocket)',"do",UDPClient)
+    print("done")
     reciveMessage(UDPClient)
+    
     showPicture(screen)  
     screen.blit(pygame.image.load('AfterCode.png'), (0, 0))
+    pygame.display.flip()
 
 def select(results):
     while pygame.event.get().type != pygame.MOUSEBUTTONUP:
