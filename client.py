@@ -11,11 +11,8 @@ UDPClient=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 UDPClient.connect(serverAddress)
 print("connected")
 protocol.sendMessage("takePicture()","do",UDPClient)
-print("1")
 protocol.sendMessage('sendMessage("Picture.png","picture",mySocket)',"do",UDPClient)
-print("1")
 protocol.reciveMessage(UDPClient)
-print("1")
 
 windowHight = 480
 windowLength = 640
