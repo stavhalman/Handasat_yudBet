@@ -166,14 +166,6 @@ def setUp():
     screen = pygame.display.set_mode(size)
     pygame.display.set_caption("Project")
 
-
-    refresh = classes.button(800,200,300,100,screen, "protocol.refresh(UDPClient,screen)","refresh")
-    select = classes.button(1200,200,300,100,screen, "protocol.select(results)","select")
-    buttons = {refresh,select}
-    refresh.drawButton()
-    select.drawButton()
     screen.blit(pygame.image.load('AfterCode.png'), (0, 0))
-
-    pygame.display.flip()
 
     return screen
