@@ -127,7 +127,7 @@ def showPicture():
     cv2.imshow('frame', frame_)
 
     #save picture
-    #cv2.imwrite()
+    cv2.imwrite("AfterCode.png", frame_)
     while True:
         if cv2.waitKey(25) & 0xFF == ord('q'):
             break
