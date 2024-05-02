@@ -1,6 +1,8 @@
 import socket
 import cv2
 from ultralytics import YOLO
+import pygame
+import classes
 
 def takePicture():
 
@@ -132,3 +134,46 @@ def showPicture():
         if cv2.waitKey(25) & 0xFF == ord('q'):
             break
 
+def button(x,y,w,h,buttonText,screen, action):
+    font = pygame.font.SysFont('freesanbold.ttf', 50)
+    text = font.render(buttonText, True, (255, 255, 255))
+    textRect1 = text.get_rect()
+    textRect1.center = (x+w/2, y+h/2)
+    pygame.draw.rect(screen,(255,255,255),[x,y,w,h],5)
+    screen.blit(text, textRect1)
+
+def refresh(UDPClient,screen):
+    sendMessage("takePicture()","do",UDPClient)
+    sendMessage('sendMessage("Picture.png","picture",mySocket)',"do",UDPClient)
+    reciveMessage(UDPClient)
+    showPicture()  
+    screen.blit(pygame.image.load('AfterCode.png'), (0, 0))
+
+def select(results):
+    while pygame.event.get().type != pygame.MOUSEBUTTONUP:
+        pass
+    while pygame.event.get().type != pygame.MOUSEBUTTONDOWN:
+        pass
+    for box in results[0].boxes:
+        if box.xyxy[0][0] < pygame.mouse.get_pos()[0] and box.xyxy[0][2] > pygame.mouse.get_pos()[0] and box.xyxy[1][0] < pygame.mouse.get_pos()[1] and box.xyxy[1][2] > pygame.mouse.get_pos()[1]:
+            return box
+
+def setUp():
+    WINDOW_WIDTH = 1920
+    WINDOW_HEIGHT = 1030
+    pygame.init()
+    size = (WINDOW_WIDTH, WINDOW_HEIGHT)
+    screen = pygame.display.set_mode(size)
+    pygame.display.set_caption("Project")
+
+
+    refresh = classes.button(800,200,300,100,screen, "protocol.refresh(UDPClient,screen)","refresh")
+    select = classes.button(1200,200,300,100,screen, "protocol.select(results)","select")
+    buttons = {refresh,select}
+    refresh.drawButton()
+    select.drawButton()
+    screen.blit(pygame.image.load('AfterCode.png'), (0, 0))
+
+    pygame.display.flip()
+
+    return screen
