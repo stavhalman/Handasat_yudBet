@@ -63,11 +63,9 @@ def sendMessage(message:str,messageType,mySocket:socket.socket):
     
     #send message
     mySocket.send(message)
-    print("sent")
 
 #recive a socket and recive a message from it, acts acording to message type
 def reciveMessage(mySocket:socket.socket):
-    print("recieved")
 
     #get socket type length
     messageTypeLength:int = int(mySocket.recv(1).decode())
@@ -131,8 +129,6 @@ def showPicture(screen):
     #save picture
     cv2.imwrite("AfterCode.png", frame_)
 
-    screen.blit(pygame.image.load('AfterCode.png'), (0, 0))
-
 
 def button(x,y,w,h,buttonText,screen, action):
     font = pygame.font.SysFont('freesanbold.ttf', 50)
@@ -143,14 +139,19 @@ def button(x,y,w,h,buttonText,screen, action):
     screen.blit(text, textRect1)
 
 def refresh(UDPClient,screen):
+    print("1")
     sendMessage("takePicture()","do",UDPClient)
+    print("2")
     sendMessage('sendMessage("Picture.png","picture",mySocket)',"do",UDPClient)
-    print("done")
+    print("3")
     reciveMessage(UDPClient)
-    
+    print("4")
     showPicture(screen)  
+    print("5")
     screen.blit(pygame.image.load('AfterCode.png'), (0, 0))
+    print("6")
     pygame.display.flip()
+    print("7")
 
 def select(results):
     while pygame.event.get().type != pygame.MOUSEBUTTONUP:

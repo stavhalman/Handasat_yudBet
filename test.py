@@ -4,6 +4,7 @@ import pygame
 import protocol
 import classes
 import socket
+import time
  
 screen = protocol.setUp()
  
@@ -34,5 +35,6 @@ while running:
             for button in buttons:
                 if button.x < pygame.mouse.get_pos()[0] and pygame.mouse.get_pos()[0] < button.x+button.w and button.y < pygame.mouse.get_pos()[1] and pygame.mouse.get_pos()[1] < button.y+button.h:
                     eval(button.action)
+                    time.sleep(1)
         
         

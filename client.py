@@ -13,6 +13,7 @@ print("connected")
 protocol.sendMessage("takePicture()","do",UDPClient)
 protocol.sendMessage('sendMessage("Picture.png","picture",mySocket)',"do",UDPClient)
 protocol.reciveMessage(UDPClient)
+print("recived")
 
 windowHight = 480
 windowLength = 640
