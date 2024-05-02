@@ -93,7 +93,7 @@ def reciveMessage(mySocket:socket.socket):
         with open ('Picture.png','wb') as file:
             file.write(data)
 
-def showPicture():
+def showPicture(screen):
     windowHight = 480
     windowLength = 640
     # load yolov8 model
@@ -125,11 +125,11 @@ def showPicture():
         else:
             print("empty")
 
-    # visualize
-    cv2.imshow('frame', frame_)
-
     #save picture
     cv2.imwrite("AfterCode.png", frame_)
+
+    screen.blit(pygame.image.load('AfterCode.png'), (0, 0))
+
     while True:
         if cv2.waitKey(25) & 0xFF == ord('q'):
             break
@@ -146,7 +146,7 @@ def refresh(UDPClient,screen):
     sendMessage("takePicture()","do",UDPClient)
     sendMessage('sendMessage("Picture.png","picture",mySocket)',"do",UDPClient)
     reciveMessage(UDPClient)
-    showPicture()  
+    showPicture(screen)  
     screen.blit(pygame.image.load('AfterCode.png'), (0, 0))
 
 def select(results):
