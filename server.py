@@ -14,6 +14,5 @@ RPISocket.listen()
 clientSocket,clientAddress = RPISocket.accept()
 
 
-protocol.reciveMessage(clientSocket)
-protocol.reciveMessage(clientSocket)
-
+while True:
+    protocol.reciveMessage(clientSocket)
