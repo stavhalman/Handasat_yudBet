@@ -66,6 +66,7 @@ def sendMessage(message:str,messageType,mySocket:socket.socket):
 
 #recive a socket and recive a message from it, acts acording to message type
 def reciveMessage(mySocket:socket.socket):
+    print("recieved")
 
     #get socket type length
     messageTypeLength:int = int(mySocket.recv(1).decode())
@@ -93,7 +94,6 @@ def reciveMessage(mySocket:socket.socket):
         #save picture
         with open ('Picture.png','wb') as file:
             file.write(data)
-    print("recieved")
 
 def showPicture(screen):
     windowHight = 480
