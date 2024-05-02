@@ -11,3 +11,5 @@ protocol.sendMessage("takePicture()","do",UDPClient)
 protocol.sendMessage('sendMessage("Picture.png","picture",mySocket)',"do",UDPClient)
 
 protocol.reciveMessage(UDPClient)
+
+protocol.showPicture()

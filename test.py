@@ -18,8 +18,8 @@ get = True
 # read frames
 while ret:
     ret, frame = cap.read()
-    if cv2.waitKey(25) & 0xFF == ord('a'):
-        get = True
+    # if cv2.waitKey(25) & 0xFF == ord('a'):
+    get = True
     
     if cv2.waitKey(25) & 0xFF == ord('q'):
         break
