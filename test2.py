@@ -1,62 +1,20 @@
-# import pygame
-import pygame
+import socket
+import time
+import protocol
 
-# initializing pygame
-pygame.font.init()
 
-# check whether font is initialized
-# or not
-pygame.font.get_init()
+ServerPort=8888
+ServerIP='0.0.0.0'
 
-# create the display surface
-display_surface = pygame.display.set_mode((500, 500))
+RPISocket=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+RPISocket.bind((ServerIP,ServerPort))
 
-# change the window screen title
-pygame.display.set_caption('Our Text')
+print("server is up")
+RPISocket.listen()
+clientSocket,clientAddress = RPISocket.accept()
 
-# Create a font file by passing font file
-# and size of the font
-font1 = pygame.font.SysFont('freesanbold.ttf', 50)
-font2 = pygame.font.SysFont('chalkduster.ttf', 40)
 
-# Render the texts that you want to display
-text1 = font1.render('GeeksForGeeks', True, (0, 255, 0))
-text2 = font2.render('GeeksForGeeks', True, (0, 255, 0))
+#protocol.reciveMessage(clientSocket)
+protocol.reciveMessage(clientSocket)
 
-# create a rectangular object for the
-# text surface object
-textRect1 = text1.get_rect()
-textRect2 = text2.get_rect()
-
-# setting center for the first text
-textRect1.center = (250, 250)
-
-# setting center for the second text
-textRect2.topleft = (0, 0)
-
-while True:
-
-	# add background color using RGB values
-	display_surface.fill((255, 0, 0))
-
-	# copying the text surface objects
-	# to the display surface objects
-	# at the center coordinate.
-	display_surface.blit(text1, textRect1)
-	display_surface.blit(text2, textRect2)
-
-	# iterate over the list of Event objects
-	# that was returned by pygame.event.get()
-	# method.
-	for event in pygame.event.get():
-
-		if event.type == pygame.QUIT:
-		
-			# deactivating the pygame library
-			pygame.quit()
-
-			# quitting the program.
-			quit()
-
-		# update the display
-		pygame.display.update()
+print("done")

@@ -1,4 +1,3 @@
-
 # import pygame package
 import pygame
 import protocol
@@ -8,17 +7,19 @@ import time
  
 screen = protocol.setUp()
  
-refresh = classes.button(800,200,300,100,screen, "protocol.refresh(UDPClient,screen)","refresh")
-select = classes.button(1200,200,300,100,screen, "protocol.select(results)","select")
-buttons = {refresh,select}
+refresh = classes.button(800,200,300,100,screen, "protocol.refresh(UDPClient,screen,boxPlaces)","refresh")
+select = classes.button(1200,200,300,100,screen, "protocol.select(screen, boxPlaces)","select")
+buttons = [refresh,select]
+boxPlaces = []
 refresh.drawButton()
 select.drawButton()
 pygame.display.flip()
 
-serverAddress = ('10.0.0.22',8888)
+serverAddress = ('127.0.0.1',8888)
 
 UDPClient=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 UDPClient.connect(serverAddress)
+protocol.refresh(UDPClient,screen,buttons)
 
 running = True
 while running:
@@ -36,5 +37,6 @@ while running:
                 if button.x < pygame.mouse.get_pos()[0] and pygame.mouse.get_pos()[0] < button.x+button.w and button.y < pygame.mouse.get_pos()[1] and pygame.mouse.get_pos()[1] < button.y+button.h:
                     eval(button.action)
                     time.sleep(1)
+
         
         

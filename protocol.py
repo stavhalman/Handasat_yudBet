@@ -101,9 +101,7 @@ def reciveMessage(mySocket:socket.socket):
 
         #recive all the bytes of the picture
         length = int(mySocket.recv(6))
-        print(length)
         for i in range(length):   
-            print(i)
             data += mySocket.recv(1024)
 
         #save picture
@@ -116,12 +114,11 @@ def reciveMessage(mySocket:socket.socket):
         
     
 
-def showPicture(screen):
+def showPicture(screen,list):
     windowHight = 480
     windowLength = 640
     # load yolov8 model
     model = YOLO('best.pt')
-
     # load video
     video_path = 'Picture.png'
 
@@ -130,58 +127,44 @@ def showPicture(screen):
     results = model.track(frame, persist=True, conf = 0.5, iou = 0.5)
 
     frame_ = results[0].plot()
-    
-    if results[0] != None:
-        highest = results[0].boxes[0]
-        if(len(results[0].boxes) != 0):
-            for bx in results[0].boxes:
-                if bx.conf > highest.conf:
-                    highest = bx
-            print(highest.conf)
-            bouldingBoxMiddle = (highest.xyxy[0][0] + highest.xyxy[0][2])/2
-            if(bouldingBoxMiddle<=windowLength/3):
-                print("right")
-            if(bouldingBoxMiddle>windowLength/3 and bouldingBoxMiddle<windowLength/3*2):
-                print("middle")
-            if(bouldingBoxMiddle<=windowLength and bouldingBoxMiddle>=windowLength/3*2):
-                print("left")
-        else:
-            print("empty")
 
+    if len(results[0].boxes) > 0:
+        highest = results[0].boxes[0]
+        for bx in results[0].boxes:
+            list.append(classes.button(bx.xywh[0][0],bx.xywh[0][1],bx.xywh[0][2],bx.xywh[0][3],screen, "print('pressed')",""))
+            if bx.conf > highest.conf:
+                highest = bx
+        print(highest.conf)
+        bouldingBoxMiddle = (highest.xyxy[0][0] + highest.xyxy[0][2])/2
+        if(bouldingBoxMiddle<=windowLength/3):
+            print("right")
+        if(bouldingBoxMiddle>windowLength/3 and bouldingBoxMiddle<windowLength/3*2):
+            print("middle")
+        if(bouldingBoxMiddle<=windowLength and bouldingBoxMiddle>=windowLength/3*2):
+            print("left")
+    else:
+        print("empty")
+        
     #save picture
     cv2.imwrite("AfterCode.png", frame_)
 
 
-def button(x,y,w,h,buttonText,screen, action):
-    font = pygame.font.SysFont('freesanbold.ttf', 50)
-    text = font.render(buttonText, True, (255, 255, 255))
-    textRect1 = text.get_rect()
-    textRect1.center = (x+w/2, y+h/2)
-    pygame.draw.rect(screen,(255,255,255),[x,y,w,h],5)
-    screen.blit(text, textRect1)
-
-def refresh(UDPClient,screen):
-    print("1")
+def refresh(UDPClient,screen,boxPlaces):
     sendMessage("takePicture()","do",UDPClient)
-    print("2")
     sendMessage('sendMessage("Picture.png","picture",mySocket)',"do",UDPClient)
-    print("3")
     reciveMessage(UDPClient)
-    print("4")
-    showPicture(screen)  
-    print("5")
+    showPicture(screen,boxPlaces)  
     screen.blit(pygame.image.load('AfterCode.png'), (0, 0))
-    print("6")
     pygame.display.flip()
-    print("7")
 
-def select(results):
-    while pygame.event.get().type != pygame.MOUSEBUTTONUP:
+def select(screen, boxes):
+    while pygame.MOUSEBUTTONUP in pygame.event.get() == False:
         pass
-    while pygame.event.get().type != pygame.MOUSEBUTTONDOWN:
+    while pygame.MOUSEBUTTONDOWN in pygame.event.get() == False:
         pass
-    for box in results[0].boxes:
-        if box.xyxy[0][0] < pygame.mouse.get_pos()[0] and box.xyxy[0][2] > pygame.mouse.get_pos()[0] and box.xyxy[1][0] < pygame.mouse.get_pos()[1] and box.xyxy[1][2] > pygame.mouse.get_pos()[1]:
+    for box in boxes:
+        if box.x < pygame.mouse.get_pos()[0] and box.x+box.w > pygame.mouse.get_pos()[0] and box.y < pygame.mouse.get_pos()[1] and box.y+box.h > pygame.mouse.get_pos()[1]:
+            print(box.middlePoint)
             return box
 
 def setUp():
@@ -195,3 +178,4 @@ def setUp():
     screen.blit(pygame.image.load('AfterCode.png'), (0, 0))
 
     return screen
+
