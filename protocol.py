@@ -40,7 +40,7 @@ def sendMessage(message:str,messageType,mySocket:socket.socket):
             message=file.read()
 
         #get message length
-        messageLength = str(len(message)-7-len(messageType)//1024+1)
+        messageLength = str(len(message)//1024+1)
 
         #change messageLength to correct format
         messageLength = "0"*(6-len(messageLength))+messageLength
@@ -63,23 +63,36 @@ def sendMessage(message:str,messageType,mySocket:socket.socket):
     
     #send message
     mySocket.send(message)
+    if( messageType != "ok"):
+        print("sent")
+        reciveMessage(mySocket)
+        print("confirmed")
 
 #recive a socket and recive a message from it, acts acording to message type
 def reciveMessage(mySocket:socket.socket):
 
     #get socket type length
     messageTypeLength:int = int(mySocket.recv(1).decode())
+    print(messageTypeLength)
 
     #get the socket type
-    messageType = mySocket.recv(messageTypeLength).decode()  
+    messageType = mySocket.recv(messageTypeLength).decode()   
+    print(messageType) 
+    
 
     if messageType == "do":
 
         #get command
         message = mySocket.recv(1024).decode()
 
+        print("recived")
+        sendMessage("","ok",mySocket)
+        print("sent confirmation")
+
         #do command
+        print("doing: "+message)
         eval(message)
+
     
     elif messageType == "picture":
 
@@ -87,12 +100,21 @@ def reciveMessage(mySocket:socket.socket):
         data:bytes = b''
 
         #recive all the bytes of the picture
-        for i in range(int(mySocket.recv(6))):   
+        length = int(mySocket.recv(6))
+        print(length)
+        for i in range(length):   
+            print(i)
             data += mySocket.recv(1024)
 
         #save picture
         with open ('Picture.png','wb') as file:
             file.write(data)
+
+        print("recived")
+        sendMessage("","ok",mySocket)
+        print("sent confirmation")       
+        
+    
 
 def showPicture(screen):
     windowHight = 480

@@ -13,8 +13,6 @@ print("server is up")
 RPISocket.listen()
 clientSocket,clientAddress = RPISocket.accept()
 
-
-protocol.reciveMessage(clientSocket)
-protocol.reciveMessage(clientSocket)
-time.sleep(50)
-#protocol.reciveMessage(clientSocket)
+while True:
+    protocol.reciveMessage(clientSocket)
+    print("done")
