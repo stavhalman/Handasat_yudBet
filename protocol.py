@@ -2,10 +2,11 @@ import socket
 import cv2
 from ultralytics import YOLO
 import pygame
-import classes
+import Classes
 import time
 
-def takePicture():
+#takes a picture and saves it
+def take_picture():
 
     #select camera
     cam_port = 0
@@ -21,14 +22,12 @@ def takePicture():
         #save picture
         cv2.imwrite("Picture.png", image) 
 
-def moveTo(x,y):
+#recives cordinations and activate the engines acordingly
+def move_to(x,y):
     print("Move to ",x," ",y)
 
-def select():
-    print("Select")
-
 #recive a message (string), message type (string) and socket. sends message to socket
-def sendMessage(message:str,messageType,mySocket:socket.socket):
+def send_message(message:str,messageType,mySocket:socket.socket):
 
     #get socket type length
     messageTypeLength = str(len(messageType))
@@ -65,11 +64,11 @@ def sendMessage(message:str,messageType,mySocket:socket.socket):
     mySocket.send(message)
     if( messageType != "ok"):
         print("sent")
-        reciveMessage(mySocket)
+        receive_message(mySocket)
         print("confirmed")
 
 #recive a socket and recive a message from it, acts acording to message type
-def reciveMessage(mySocket:socket.socket):
+def receive_message(mySocket:socket.socket):
 
     #get socket type length
     messageTypeLength:int = int(mySocket.recv(1).decode())
@@ -86,7 +85,7 @@ def reciveMessage(mySocket:socket.socket):
         message = mySocket.recv(1024).decode()
 
         print("recived")
-        sendMessage("","ok",mySocket)
+        send_message("","ok",mySocket)
         print("sent confirmation")
 
         #do command
@@ -109,65 +108,50 @@ def reciveMessage(mySocket:socket.socket):
             file.write(data)
 
         print("recived")
-        sendMessage("","ok",mySocket)
-        print("sent confirmation")       
-        
-    
+        send_message("","ok",mySocket)
+        print("sent confirmation")          
 
-def showPicture(screen,list):
-    windowHight = 480
-    windowLength = 640
+#loads a picture and locate crates and places to put them in
+def process_picture(list):
     # load yolov8 model
     model = YOLO('best.pt')
-    # load video
-    video_path = 'Picture.png'
 
-    frame = cv2.imread(video_path)
+    # load picture
+    picture_path = 'lol.png'
+    frame = cv2.imread(picture_path)
 
-    results = model.track(frame, persist=True, conf = 0.5, iou = 0.5)
-
+    #uses the yolov8 model to find crates and places to put them in
+    results = model.track(frame, persist=True, conf = 0.1, iou = 0.1)
     frame_ = results[0].plot()
-
-    if len(results[0].boxes) > 0:
-        highest = results[0].boxes[0]
-        for bx in results[0].boxes:
-            list.append(classes.button(bx.xywh[0][0],bx.xywh[0][1],bx.xywh[0][2],bx.xywh[0][3],screen, "print('pressed')",""))
-            if bx.conf > highest.conf:
-                highest = bx
-        print(highest.conf)
-        bouldingBoxMiddle = (highest.xyxy[0][0] + highest.xyxy[0][2])/2
-        if(bouldingBoxMiddle<=windowLength/3):
-            print("right")
-        if(bouldingBoxMiddle>windowLength/3 and bouldingBoxMiddle<windowLength/3*2):
-            print("middle")
-        if(bouldingBoxMiddle<=windowLength and bouldingBoxMiddle>=windowLength/3*2):
-            print("left")
-    else:
-        print("empty")
         
     #save picture
     cv2.imwrite("AfterCode.png", frame_)
 
-
+#request the server to take a picture and to send the picture, then it saves the picture, process it and update the picture on screen
 def refresh(UDPClient,screen,boxPlaces):
-    sendMessage("takePicture()","do",UDPClient)
-    sendMessage('sendMessage("Picture.png","picture",mySocket)',"do",UDPClient)
-    reciveMessage(UDPClient)
-    showPicture(screen,boxPlaces)  
+    send_message("take_picture()","do",UDPClient)
+    send_message('send_message("Picture.png","picture",mySocket)',"do",UDPClient)
+    receive_message(UDPClient)
+    process_picture(boxPlaces)  
     screen.blit(pygame.image.load('AfterCode.png'), (0, 0))
     pygame.display.flip()
 
+#gets user input on what crate to pick up and where to put it
 def select(screen, boxes):
-    while pygame.MOUSEBUTTONUP in pygame.event.get() == False:
+    print("select")
+    while pygame.mouse.get_pressed()[2] == True:
         pass
-    while pygame.MOUSEBUTTONDOWN in pygame.event.get() == False:
+    print("1")
+    while pygame.mouse.get_pressed()[2] == False:
         pass
+    print("2")
     for box in boxes:
         if box.x < pygame.mouse.get_pos()[0] and box.x+box.w > pygame.mouse.get_pos()[0] and box.y < pygame.mouse.get_pos()[1] and box.y+box.h > pygame.mouse.get_pos()[1]:
             print(box.middlePoint)
             return box
 
-def setUp():
+#open a pygame window which the user can select the crate and where to put it
+def set_up():
     WINDOW_WIDTH = 1920
     WINDOW_HEIGHT = 1030
     pygame.init()

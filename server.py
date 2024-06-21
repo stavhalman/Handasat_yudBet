@@ -1,8 +1,7 @@
 import socket
-import time
-import protocol
+import Protocol
 
-
+# this file runs on the sudpberry pi, the file purpose is to recive orders and execute them
 ServerPort=8888
 ServerIP='0.0.0.0'
 
@@ -14,5 +13,5 @@ RPISocket.listen()
 clientSocket,clientAddress = RPISocket.accept()
 
 while True:
-    protocol.reciveMessage(clientSocket)
+    Protocol.receive_message(clientSocket)
     print("done")
