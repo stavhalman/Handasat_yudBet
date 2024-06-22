@@ -1,5 +1,5 @@
 import socket
-import protocol
+import Protocol
 import cv2
 import time
 from ultralytics import YOLO
@@ -10,9 +10,9 @@ serverAddress = ('127.0.0.1',8888)
 UDPClient=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 UDPClient.connect(serverAddress)
 print("connected")
-protocol.sendMessage("takePicture()","do",UDPClient)
-protocol.sendMessage('sendMessage("Picture.png","picture",mySocket)',"do",UDPClient)
-protocol.reciveMessage(UDPClient)
+Protocol.sendMessage("takePicture()","do",UDPClient)
+Protocol.sendMessage('sendMessage("Picture.png","picture",mySocket)',"do",UDPClient)
+Protocol.reciveMessage(UDPClient)
 print("done")
 
 windowHight = 480
