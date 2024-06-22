@@ -1,20 +1,17 @@
+# import pygame package
+import pygame
+import Protocol
+import Classes
 import socket
 import time
-import protocol
 
 
-ServerPort=8888
-ServerIP='0.0.0.0'
+serverAddress = ('192.168.0.102',8888)
 
-RPISocket=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-RPISocket.bind((ServerIP,ServerPort))
+UDPClient=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+UDPClient.connect(serverAddress)
 
-print("server is up")
-RPISocket.listen()
-clientSocket,clientAddress = RPISocket.accept()
-
-
-#protocol.reciveMessage(clientSocket)
-protocol.reciveMessage(clientSocket)
-
-print("done")
+Protocol.send_message("GPIO.output(enb,GPIO.HIGH)","do",UDPClient)
+Protocol.send_message("move_to_cords(300,300)","do",UDPClient)
+Protocol.send_message("GPIO.output(enb,GPIO.LOW)","do",UDPClient)
+time.sleep(10)

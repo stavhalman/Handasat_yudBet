@@ -8,6 +8,7 @@ import time
 from multiprocessing import Process
 # from Server import *
 from test import *
+import mouse
 
 #takes a picture and saves it
 def take_picture():
@@ -184,45 +185,55 @@ def receive_message(mySocket:socket.socket):
         print("sent confirmation")          
 
 #loads a picture and locate crates and places to put them in
-def process_picture(list):
+def process_picture():
+    global boxPlaces
     # load yolov8 model
     model = YOLO('best.pt')
 
     # load picture
-    picture_path = 'lol.png'
+    picture_path = 'Picture.png'
     frame = cv2.imread(picture_path)
 
     #uses the yolov8 model to find crates and places to put them in
-    results = model.track(frame, persist=True, conf = 0.1, iou = 0.1)
+    results = model.track(frame, persist=True, conf = 0.4, iou = 0.4)
     frame_ = results[0].plot()
         
     #save picture
     cv2.imwrite("AfterCode.png", frame_)
+    boxPlaces=[]
+    if(len(results[0].boxes) != 0):
+        for bx in results[0].boxes:
+            boxPlaces.append(bx)
+        print(bx.conf)
+        bouldingBoxMiddle = (bx.xyxy[0][0] + bx.xyxy[0][2])/2
+    else:
+        print("empty")
 
 #request the server to take a picture and to send the picture, then it saves the picture, process it and update the picture on screen
-def refresh(UDPClient):
-    global screen,boxPlaces
+def refresh(UDPClient,screen):
     send_message("take_picture()","do",UDPClient)
     send_message('send_message("Picture.png","picture",mySocket)',"do",UDPClient)
     receive_message(UDPClient)
-    process_picture(boxPlaces)  
+    process_picture()  
     screen.blit(pygame.image.load('AfterCode.png'), (0, 0))
     pygame.display.flip()
 
 #gets user input on what crate to pick up and where to put it
-def select():
-    global screen, boxes
+def select(UDPClient):
+    global boxPlaces, UDPC
     print("select")
-    while pygame.mouse.get_pressed()[2] == True:
+    while mouse.is_pressed("left") == True:
         pass
     print("1")
-    while pygame.mouse.get_pressed()[2] == False:
+    while mouse.is_pressed("left") == False:
         pass
     print("2")
-    for box in boxes:
-        if box.x < pygame.mouse.get_pos()[0] and box.x+box.w > pygame.mouse.get_pos()[0] and box.y < pygame.mouse.get_pos()[1] and box.y+box.h > pygame.mouse.get_pos()[1]:
-            print(box.middlePoint)
-            return box
+    corret = None
+    for box in boxPlaces:
+        if int(box.xyxy[0][0]) < mouse.get_position()[0]  and int(box.xyxy[0][2]) > mouse.get_position()[0] and int(box.xyxy[0][1]) < mouse.get_position()[1]  and int(box.xyxy[0][3]) > mouse.get_position()[1]:
+            corret = box
+            print("yay")
+            Protocol.send_message("move_to_cords("+str(int(box.xyxy[0][0])+int(box.xyxy[0][2])-320)+","+str(240-int(box.xyxy[0][1])+int(box.xyxy[0][3]))+")","do",UDPClient)
 
 #open a pygame window which the user can select the crate and where to put it
 def set_up():

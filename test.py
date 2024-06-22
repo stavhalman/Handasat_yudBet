@@ -7,19 +7,8 @@ import time
  
 
 
-WINDOW_WIDTH = 1920
-WINDOW_HEIGHT = 1030
-pygame.init()
-size = (WINDOW_WIDTH, WINDOW_HEIGHT)
-screen = pygame.display.set_mode(size)
-pygame.display.set_caption("Project")
-
-screen.blit(pygame.image.load('AfterCode.png'), (0, 0))
-
-refresh = Classes.button(800,200,300,100,screen, "Protocol.refresh(UDPClient)","refresh")
-select = Classes.button(1200,200,300,100,screen, "Protocol.select()","select")
-buttons = [refresh,select]
 boxPlaces = []
+
 
 def main():
     global screen,boxPlaces,refresh,select
@@ -33,7 +22,7 @@ def main():
 
     UDPClient=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
     UDPClient.connect(serverAddress)
-    Protocol.refresh(UDPClient)
+    Protocol.refresh(UDPClient,screen)
 
     running = True
     while running:
@@ -53,4 +42,16 @@ def main():
                         eval(button.action)
 
 if __name__ == "__main__":
+    WINDOW_WIDTH = 1920
+    WINDOW_HEIGHT = 1030
+    pygame.init()
+    size = (WINDOW_WIDTH, WINDOW_HEIGHT)
+    screen = pygame.display.set_mode(size)
+    pygame.display.set_caption("Project")
+
+    screen.blit(pygame.image.load('AfterCode.png'), (0, 0))
+
+    refresh = Classes.button(800,200,300,100,screen, "Protocol.refresh(UDPClient,screen)","refresh")
+    select = Classes.button(1200,200,300,100,screen, "Protocol.select(UDPClient)","select")
+    buttons = [refresh,select]
     main()
