@@ -124,7 +124,17 @@ def receive_message():
 
         print("recived")
         send_message("","ok",UDPClient)
-        print("sent confirmation")          
+        print("sent confirmation")         
+
+    elif messageType == "info":
+
+        info = UDPClient.recv(1024)
+
+        print("recived")
+        send_message("","ok",UDPClient)
+        print("sent confirmation")
+
+        return info
 
 #loads a picture and locate crates and places to put them in
 def process_picture():
@@ -178,13 +188,13 @@ def select():
 
     for box in boxPlaces:
         if int(box.xyxy[0][0]) < mouse.get_position()[0]  and int(box.xyxy[0][2]) > mouse.get_position()[0] and int(box.xyxy[0][1]) < mouse.get_position()[1]  and int(box.xyxy[0][3]) > mouse.get_position()[1]:
-            pick_up(int(box.xyxy[0][0])+int(box.xyxy[0][2])-320,240-int(box.xyxy[0][1])+int(box.xyxy[0][3]))
+            get_em(int(box.xyxy[0][0])+int(box.xyxy[0][2])-320,240-int(box.xyxy[0][1])+int(box.xyxy[0][3]))
             return True
     return False
 
-#a function that recives cordinates and trie to pick up a crate there
-def pick_up(x,y):
-    global current_x,current_y
+#a function that recives cordinates and tries to pick up/put down a crate there
+def get_em(x,y):
+    global current_x,current_y,state
 
     move_to_cords(current_x+x,current_y+y)
 
@@ -195,21 +205,10 @@ def pick_up(x,y):
     if(temp_x!=x or temp_y!=y):
         move_to_cords(temp_x,temp_y)
     
-    send_message("pick_up()","do")
-    return True
-
-#a function that recives cordinates and trie to put down a crate there
-def put_down(x,y):
-    global current_x,current_y
-
-    move_to_cords(current_x+x,current_y+y)
-
-    temp_x,temp_y = refresh()
-    if(temp_x == -1000 and temp_y == -1000):
-        print("no put down found")
-        return False
-    if(temp_x!=x or temp_y!=y):
-        move_to_cords(temp_x,temp_y)
-    
-    send_message("put_down()","do")
+    if(state):
+        send_message("put_down()","do")
+        state = 0
+    else:
+        send_message("pick_up()","do")
+        state = 1
     return True

@@ -34,7 +34,7 @@ if __name__ == "__main__":
     UDPClient=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
     UDPClient.connect(serverAddress)
 
-    current_x,current_y,max_x,max_y = tuple(map(int, Protocol_Client.receive_message().split(',')))
+    current_x,current_y,max_x,max_y,state = tuple(map(int, Protocol_Client.receive_message().split(',')))
 
     screen,buttons,boxPlaces = Protocol_Client.set_up(),[]
 

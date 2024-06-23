@@ -180,7 +180,17 @@ def receive_message():
 
         print("recived")
         send_message("","ok",clientSocket)
-        print("sent confirmation")          
+        print("sent confirmation")         
+
+    elif messageType == "info":
+
+        info = clientSocket.recv(1024)
+
+        print("recived")
+        send_message("","ok",clientSocket)
+        print("sent confirmation")
+
+        return info
 
 #a function that pick up a crate below
 def pick_up():
@@ -189,3 +199,4 @@ def pick_up():
 #a function that puts down a crate below
 def put_down():
     print("putting down")
+

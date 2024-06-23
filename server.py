@@ -35,6 +35,7 @@ if __name__ == "__main__":
     current_y = 0
     max_x = 1300
     max_y = 1400
+    state = 0
     
     #waits for a cleint to connect
     ServerPort=8888
@@ -47,6 +48,6 @@ if __name__ == "__main__":
     RPISocket.listen()
     clientSocket,clientAddress = RPISocket.accept()
 
-    Protocol_Server.send_message(str(current_x)+","+str(current_y)+","+str(max_x)+","+str(max_y))
+    Protocol_Server.send_message(str(current_x)+","+str(current_y)+","+str(max_x)+","+str(max_y)+","+str(state),"info")
 
     main()
