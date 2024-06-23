@@ -23,6 +23,23 @@ def take_picture():
         #save picture
         cv2.imwrite("Picture.png", image) 
 
+#gets a client
+def get_client():
+    global clientSocket, clientAddress, is_client
+    global ServerIP, ServerPort
+    RPISocket=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+    RPISocket.bind((ServerIP,ServerPort))
+
+    print("server is up")
+    RPISocket.listen()
+    clientSocket,clientAddress = RPISocket.accept()
+    is_client = True
+
+    #send client boarders information and state
+    Protocol_Server.send_message(str(current_x)+","+str(current_y)+","+str(max_x)+","+str(max_y)+","+str(state),"info")
+    
+    return clientSocket
+
 #moves a motor for a selected time and speed
 def move_motor(step_Pin,dir_Pin,dir,move_Time,speed):
     GPIO.output(dir_Pin, dir)
@@ -37,13 +54,18 @@ def move_motor(step_Pin,dir_Pin,dir,move_Time,speed):
 #recieves cordinations and moves to them
 def move_to_cords(target_x,target_y):
     global max_x,max_y, current_x, current_y, speed
+
     if(target_x<0 or target_x>max_x) or target_y<0 or target_y>max_y:
         print("requested cords are out of bounds")
         return False
+    #find the x and y needed to move from current olcation
     x_move = target_x-current_x
     y_move = target_y-current_y
+
+    #finds requiered time that the motors will need to be active
     time_to_move = (abs(x_move/1000)+abs(y_move/1000))/speed
 
+    #finds each motor's direction
     if(x_move>abs(y_move) or abs(x_move)<y_move or (x_move==y_move and x_move>0)):
         dir_motor1 = GPIO.HIGH
     else:
@@ -55,19 +77,13 @@ def move_to_cords(target_x,target_y):
         dir_motor2 = GPIO.LOW
 
     
-        
-    if(x_move==0):
-        t1 = Process(target = move_motor, args = (step1,dir1,dir_motor1,time_to_move,speed))
-        t2 = Process(target = move_motor, args = (step2,dir2,dir_motor2,time_to_move,speed))
-        t1.start()
-        t2.start()
-        t1.join()
-        t2.join()
-    elif (x_move == y_move):
+    #if only 1 motor needs to move, it will do it
+    if (x_move == y_move):
         move_motor(step1,dir1,dir_motor1,time_to_move,speed)
     elif (x_move == -y_move):
         move_motor(step2,dir2,dir_motor2,time_to_move,speed)
     else:
+        #if 2 motors need to move
         speed1 = abs(x_move/2+y_move/2)
         speed2 = abs(x_move/2-y_move/2)
         if(speed1>speed2):
@@ -85,15 +101,17 @@ def move_to_cords(target_x,target_y):
         t1.join()
         t2.join()
         
-
+    #update the current x and y
     current_x = target_x
     current_y = target_y
 
 #a function to run before shutting down
 def shut_down():
+    global is_client
     move_to_cords(0,0)
     GPIO.output(enb, GPIO.LOW)
     GPIO.cleanup()
+    is_client = False
 
 #recive a message (string), message type (string) and socket. sends message to socket
 def send_message(message:str,messageType):
@@ -133,6 +151,7 @@ def send_message(message:str,messageType):
     #send message
     clientSocket.send(message)
     if( messageType != "ok"):
+        #confirmation
         print("sent")
         receive_message(clientSocket)
         print("confirmed")
@@ -148,13 +167,13 @@ def receive_message():
     #get the socket type
     messageType = clientSocket.recv(messageTypeLength).decode()   
     print(messageType) 
-    
 
     if messageType == "do":
 
         #get command
         message = clientSocket.recv(1024).decode()
 
+        #confirmation
         print("recived")
         send_message("","ok",clientSocket)
         print("sent confirmation")
@@ -178,6 +197,7 @@ def receive_message():
         with open ('Picture.png','wb') as file:
             file.write(data)
 
+        #confirmation
         print("recived")
         send_message("","ok",clientSocket)
         print("sent confirmation")         
@@ -186,6 +206,7 @@ def receive_message():
 
         info = clientSocket.recv(1024)
 
+        #confirmation   
         print("recived")
         send_message("","ok",clientSocket)
         print("sent confirmation")
@@ -194,9 +215,11 @@ def receive_message():
 
 #a function that pick up a crate below
 def pick_up():
+    #incomplete
     print("picking up")
 
 #a function that puts down a crate below
 def put_down():
+    #incomplete
     print("putting down")
 

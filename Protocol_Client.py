@@ -20,14 +20,18 @@ def set_up():
 
     refresh = Classes.button(800,200,300,100,screen, "Protocol_Client.refresh()","refresh")
     select = Classes.button(1200,200,300,100,screen, "Protocol_Client.select()","select")
-    move_to_middle = Classes.button(1200,600,300,100,screen, "Protocol_Client.move_to_cords("+str(max_x/2)+","+str(max_y/2)+")","move to middle")
-    buttons = [refresh,select,move_to_middle]
+    move_to_middle = Classes.button(800,600,300,100,screen, "Protocol_Client.move_to_cords("+str(max_x/2)+","+str(max_y/2)+")","move to middle")
+    shut_down = Classes.button(1200,600,300,100,screen, "Protocol_Client.shut_down()","shut_down")
+    buttons = [refresh,select,move_to_middle,shut_down]
 
     return screen,buttons
 
 #a function to run before shutting down
 def shut_down():
+    global UDPClient
     send_message("shut_down()","do")
+    UDPClient.close()
+    
 
 #makes the server to take a picture and saves it and sent it back
 def take_picture():
@@ -77,6 +81,7 @@ def send_message(message:str,messageType):
     #send message
     UDPClient.send(message)
     if( messageType != "ok"):
+        #confirmation
         print("sent")
         receive_message(UDPClient)
         print("confirmed")
@@ -99,6 +104,7 @@ def receive_message():
         #get command
         message = UDPClient.recv(1024).decode()
 
+        #confirmation
         print("recived")
         send_message("","ok",UDPClient)
         print("sent confirmation")
@@ -122,6 +128,7 @@ def receive_message():
         with open ('Picture.png','wb') as file:
             file.write(data)
 
+        #confirmation
         print("recived")
         send_message("","ok",UDPClient)
         print("sent confirmation")         
@@ -130,15 +137,17 @@ def receive_message():
 
         info = UDPClient.recv(1024)
 
+        #confirmation
         print("recived")
         send_message("","ok",UDPClient)
         print("sent confirmation")
 
         return info
 
-#loads a picture and locate crates and places to put them in
+#loads a picture and locate crates and places to put them in, it stores them in a global array. it returns the most moddle box
 def process_picture():
     global boxPlaces
+
     # load yolov8 model
     model = YOLO('best.pt')
 
@@ -152,7 +161,11 @@ def process_picture():
         
     #save picture
     cv2.imwrite("AfterCode.png", frame_)
+
+    #delete old boxes
     boxPlaces=[]
+
+    #find boxes and put them in the array
     middle_x = 0
     middle_y = 0
     if(len(results[0].boxes) != 0):
@@ -166,13 +179,16 @@ def process_picture():
         return middle_x,middle_y
     else:
         print("empty")
+        #a value that signals that nothing was detected
         return -1000,-1000
 
-#request the server to take a picture and to send the picture, then it saves the picture, process it and update the picture on screen
+#request the server to take a picture and to send the picture, then it saves the picture, process it and update the picture on screen. it returns the most moddle box
 def refresh():
     global screen
     take_picture()
     x,y = process_picture()  
+
+    #refresh the picture in the screen
     screen.blit(pygame.image.load('AfterCode.png'), (0, 0))
     pygame.display.flip()
     return x,y
@@ -181,11 +197,14 @@ def refresh():
 def select():
     global boxPlaces
 
+    #wait until mouse click is over
     while mouse.is_pressed("left") == True:
         pass
+    #wait fo a new mouse click
     while mouse.is_pressed("left") == False:
         pass
 
+    #check all boxes to find which one is selected
     for box in boxPlaces:
         if int(box.xyxy[0][0]) < mouse.get_position()[0]  and int(box.xyxy[0][2]) > mouse.get_position()[0] and int(box.xyxy[0][1]) < mouse.get_position()[1]  and int(box.xyxy[0][3]) > mouse.get_position()[1]:
             get_em(int(box.xyxy[0][0])+int(box.xyxy[0][2])-320,240-int(box.xyxy[0][1])+int(box.xyxy[0][3]))
@@ -198,6 +217,7 @@ def get_em(x,y):
 
     move_to_cords(current_x+x,current_y+y)
 
+    #make sure the crate is under
     temp_x,temp_y = refresh()
     if(temp_x == -1000 and temp_y == -1000):
         print("no pick up found")
@@ -205,10 +225,13 @@ def get_em(x,y):
     if(temp_x!=x or temp_y!=y):
         move_to_cords(temp_x,temp_y)
     
+    #select whenether to pick up or put down
     if(state):
         send_message("put_down()","do")
         state = 0
+        send_message("GPIO.output(enb, GPIO.LOW)","do")
     else:
+        send_message("GPIO.output(enb, GPIO.HIGH)","do")
         send_message("pick_up()","do")
         state = 1
     return True
