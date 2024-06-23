@@ -1,28 +1,14 @@
 # import pygame package
 import pygame
-import Protocol
+import Protocol_Client
 import Classes
 import socket
 import time
  
 
-
-boxPlaces = []
-
-
 def main():
-    global screen,boxPlaces,refresh,select
-    
-
-    refresh.drawButton()
-    select.drawButton()
-    pygame.display.flip()
-
-    serverAddress = ('127.0.0.1',8888)
-
-    UDPClient=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-    UDPClient.connect(serverAddress)
-    Protocol.refresh(UDPClient,screen)
+    global screen,boxPlaces,buttons
+    Protocol_Client.refresh(UDPClient,screen)
 
     running = True
     while running:
@@ -42,16 +28,19 @@ def main():
                         eval(button.action)
 
 if __name__ == "__main__":
-    WINDOW_WIDTH = 1920
-    WINDOW_HEIGHT = 1030
-    pygame.init()
-    size = (WINDOW_WIDTH, WINDOW_HEIGHT)
-    screen = pygame.display.set_mode(size)
-    pygame.display.set_caption("Project")
 
-    screen.blit(pygame.image.load('AfterCode.png'), (0, 0))
+    serverAddress = ('127.0.0.1',8888)
 
-    refresh = Classes.button(800,200,300,100,screen, "Protocol.refresh(UDPClient,screen)","refresh")
-    select = Classes.button(1200,200,300,100,screen, "Protocol.select(UDPClient)","select")
-    buttons = [refresh,select]
+    UDPClient=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+    UDPClient.connect(serverAddress)
+
+    current_x,current_y,max_x,max_y = tuple(map(int, Protocol_Client.receive_message().split(',')))
+
+    screen,buttons,boxPlaces = Protocol_Client.set_up(),[]
+
+    for button in buttons:
+        button.draw_button()
+
+    pygame.display.flip()
+
     main()

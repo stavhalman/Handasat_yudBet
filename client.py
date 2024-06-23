@@ -1,63 +1,46 @@
+# import pygame package
+import pygame
+import Protocol_Client
+import Classes
 import socket
-import Protocol
-import cv2
 import time
-from ultralytics import YOLO
+ 
 
-serverAddress = ('127.0.0.1',8888)
-#10.0.0.22
+def main():
+    global screen,boxPlaces,buttons
+    Protocol_Client.refresh(UDPClient,screen)
 
-UDPClient=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-UDPClient.connect(serverAddress)
-print("connected")
-Protocol.sendMessage("takePicture()","do",UDPClient)
-Protocol.sendMessage('sendMessage("Picture.png","picture",mySocket)',"do",UDPClient)
-Protocol.reciveMessage(UDPClient)
-print("done")
+    running = True
+    while running:
 
-windowHight = 480
-windowLength = 640
-# load yolov8 model
-model = YOLO('best.pt')
-# load video
-video_path = 'Picture.png'
+        # Check for event if user has pushed 
+        # any event in queue
+        for event in pygame.event.get():
+        
+            # if event is of type quit then set
+            # running bool to false
+            if event.type == pygame.QUIT:
+                running = False
 
-frame = cv2.imread(video_path)
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                for button in buttons:
+                    if button.x < pygame.mouse.get_pos()[0] and pygame.mouse.get_pos()[0] < button.x+button.w and button.y < pygame.mouse.get_pos()[1] and pygame.mouse.get_pos()[1] < button.y+button.h:
+                        eval(button.action)
 
-results = model.track(frame, persist=True, conf = 0.5, iou = 0.5)
+if __name__ == "__main__":
 
-frame_ = results[0].plot()
+    serverAddress = ('127.0.0.1',8888)
 
-if len(results[0].boxes) > 0:
-    highest = results[0].boxes[0]
-    if(len(results[0].boxes) != 0):
-        for bx in results[0].boxes:
-            if bx.conf > highest.conf:
-                highest = bx
-        print(highest.conf)
-        bouldingBoxMiddle = (highest.xyxy[0][0] + highest.xyxy[0][2])/2
-        if(bouldingBoxMiddle<=windowLength/3):
-            print("right")
-        if(bouldingBoxMiddle>windowLength/3 and bouldingBoxMiddle<windowLength/3*2):
-            print("middle")
-        if(bouldingBoxMiddle<=windowLength and bouldingBoxMiddle>=windowLength/3*2):
-            print("left")
-    else:
-        print("empty")
-    
-    #save picture
-    cv2.imwrite("AfterCode.png", frame_)
+    UDPClient=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+    UDPClient.connect(serverAddress)
 
-    cv2.imshow("frame",frame_)
-else:
-    print("else")
-    cv2.imshow("Picture.png",cv2.imread(video_path))
+    current_x,current_y,max_x,max_y = tuple(map(int, Protocol_Client.receive_message().split(',')))
 
-# waits for user to press any key 
-# (this is necessary to avoid Python kernel form crashing) 
-cv2.waitKey(0) 
-  
-# closing all open windows 
-cv2.destroyAllWindows() 
+    screen,buttons,boxPlaces = Protocol_Client.set_up(),[]
 
-print("done")
+    for button in buttons:
+        button.draw_button()
+
+    pygame.display.flip()
+
+    main()

@@ -10,7 +10,7 @@ class button:
         self.action = action
         self.text = text
 
-    def drawButton(self):
+    def draw_button(self):
         font = pygame.font.SysFont('freesanbold.ttf', 50)
         text = font.render(self.text, True, (255, 255, 255))
         textRect1 = text.get_rect()
@@ -18,12 +18,4 @@ class button:
         pygame.draw.rect(self.screen,(255,255,255),[self.x,self.y,self.w,self.h],5)
         self.screen.blit(text, textRect1)
     
-class boxedPlace:
-    def __init__(self, x, y, w, h, type):
-        self.x = x
-        self.y = y
-        self.w = w
-        self.h = h
-        self. type = type
-        self. middlePoint = (x+w/2,y+h/2)
 
