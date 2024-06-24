@@ -1,6 +1,7 @@
 import socket
 import Protocol_Server
 import RPi.GPIO as GPIO
+import time
 
 def main():
 
@@ -19,6 +20,10 @@ if __name__ == "__main__":
     dir2 = 23
     dir1 = 24
     enb = 21
+    button1 = 19
+    button2 = 13
+    servo_pin = 13
+    encoder = 13
 
     GPIO.setwarnings(False)
     GPIO.setmode(GPIO.BCM)
@@ -27,6 +32,17 @@ if __name__ == "__main__":
     GPIO.setup(dir1, GPIO.OUT)
     GPIO.setup(dir2, GPIO.OUT)
     GPIO.setup(enb, GPIO.OUT)
+    GPIO.setup(button1, GPIO.IN)
+    GPIO.setup(button2, GPIO.IN)
+    GPIO.setup(servo_pin, GPIO.OUT)
+    GPIO.setup(encoder, GPIO.IN)
+
+    servo = GPIO.PWM(servo_pin,30)
+
+    servo.start(0)
+    servo.ChangeDutyCycle(2)
+    time.sleep(1)
+    
     
     #set speed and boarders
     speed = 1
@@ -34,7 +50,7 @@ if __name__ == "__main__":
     current_y = 0
     max_x = 1300
     max_y = 1400
-    state = 0
+    current_z = 0
     
     is_client = False
 

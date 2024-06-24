@@ -213,7 +213,7 @@ def select():
 
 #a function that recives cordinates and tries to pick up/put down a crate there
 def get_em(x,y):
-    global current_x,current_y,state
+    global current_x,current_y
 
     move_to_cords(current_x+x,current_y+y)
 
@@ -225,13 +225,7 @@ def get_em(x,y):
     if(temp_x!=x or temp_y!=y):
         move_to_cords(temp_x,temp_y)
     
-    #select whenether to pick up or put down
-    if(state):
-        send_message("put_down()","do")
-        state = 0
-        send_message("GPIO.output(enb, GPIO.LOW)","do")
-    else:
-        send_message("GPIO.output(enb, GPIO.HIGH)","do")
-        send_message("pick_up()","do")
-        state = 1
-    return True
+    #start to put it down/picking it up
+    send_message("choose()","do")
+
+    receive_message()

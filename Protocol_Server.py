@@ -35,8 +35,8 @@ def get_client():
     clientSocket,clientAddress = RPISocket.accept()
     is_client = True
 
-    #send client boarders information and state
-    Protocol_Server.send_message(str(current_x)+","+str(current_y)+","+str(max_x)+","+str(max_y)+","+str(state),"info")
+    #send client boarders information
+    Protocol_Server.send_message(str(current_x)+","+str(current_y)+","+str(max_x)+","+str(max_y),"info")
     
     return clientSocket
 
@@ -215,11 +215,60 @@ def receive_message():
 
 #a function that pick up a crate below
 def pick_up():
-    #incomplete
-    print("picking up")
+    go_down()
+    lock()
+    go_up()
 
 #a function that puts down a crate below
 def put_down():
-    #incomplete
-    print("putting down")
+    go_down()
+    open()
+    go_up()
 
+#rotates the servo to lock it
+def lock():
+    global servo, servo_pin
+    GPIO.output(servo_pin, True)
+    servo.ChangeDutyCycle(90/18+2)
+    time.sleep(1)
+    GPIO.output(servo_pin, False)
+    servo.ChangeDutyCycle(0)
+
+#rotates the servo to open it
+def open():
+    global servo, servo_pin
+    GPIO.output(servo_pin, True)
+    servo.ChangeDutyCycle(2)
+    time.sleep(1)
+    GPIO.output(servo_pin, False)
+    servo.ChangeDutyCycle(0)
+
+#lower the funnle until gets to the floor
+def go_down():
+    global current_z, encoder,button2
+    previus = GPIO.input(encoder)
+    #motor going down
+    while GPIO.input(button2)==False:
+        if (GPIO.input(encoder) and previus==False) or (GPIO.input(encoder)==False and previus):
+            current_z+=1
+        time.sleep(0.1)
+    #motor stop
+
+#goes up until it reaches z=0
+def go_up():
+    global current_z, encoder,button2
+    previus = GPIO.input(encoder)
+    #motor going down
+    while current_z>0:
+        if (GPIO.input(encoder) and previus==False) or (GPIO.input(encoder)==False and previus):
+            current_z-=1
+        time.sleep(0.1)
+    #motor stop
+
+def choose():
+    global button1
+    if GPIO.input(button1):
+        put_down()
+    else:
+        pick_up()
+    send_message("","ok")
