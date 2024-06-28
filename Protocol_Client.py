@@ -8,7 +8,7 @@ import mouse
 
 #open a pygame window which the user can select the crate and where to put it
 def set_up():
-    global max_x,max_y
+    global max_x,max_y, UDPClient, screen
     WINDOW_WIDTH = 1920
     WINDOW_HEIGHT = 1030
     pygame.init()
@@ -20,11 +20,19 @@ def set_up():
 
     refresh = Classes.button(800,200,300,100,screen, "Protocol_Client.refresh()","refresh")
     select = Classes.button(1200,200,300,100,screen, "Protocol_Client.select()","select")
-    move_to_middle = Classes.button(800,600,300,100,screen, "Protocol_Client.move_to_cords("+str(max_x/2)+","+str(max_y/2)+")","move to middle")
+    move_to_middle = Classes.button(800,600,300,100,screen, "Protocol_Client.move_to_cords("+str(max_x/2)+","+str(0)+")","move to middle")
     shut_down = Classes.button(1200,600,300,100,screen, "Protocol_Client.shut_down()","shut_down")
-    buttons = [refresh,select,move_to_middle,shut_down]
+    down = Classes.button(400,600,300,100,screen, "Protocol_Client.send_message('Protocol_Server.go_down()','do')","down")
+    up = Classes.button(0,600,300,100,screen, "Protocol_Client.send_message('Protocol_Server.go_up()','do')","up")
+    up_scaffed = Classes.button(0,800,300,100,screen, "Protocol_Client.send_message('GPIO.output(dc_motor2,GPIO.HIGH)','do')","up")
+    stop = Classes.button(400,800,300,100,screen, "Protocol_Client.send_message('GPIO.output(dc_motor2,GPIO.LOW)','do')","stop")
+    down_scafed = Classes.button(800,800,300,100,screen, "Protocol_Client.send_message('GPIO.output(dc_motor1,GPIO.HIGH)','do')","down")
+    stop2 = Classes.button(1200,800,300,100,screen, "Protocol_Client.send_message('GPIO.output(dc_motor1,GPIO.LOW)','do')","stop")
+    buttons = [refresh,select,move_to_middle,shut_down,down,up,up_scaffed,stop,stop2,down_scafed]
 
-    return screen,buttons
+    UDPClient.connect(serverAddress)
+
+    return screen,buttons,[]
 
 #a function to run before shutting down
 def shut_down():
@@ -36,12 +44,12 @@ def shut_down():
 #makes the server to take a picture and saves it and sent it back
 def take_picture():
     send_message("take_picture()","do")
-    send_message('send_message("Picture.png","picture",mySocket)',"do")
+    send_message('send_message("Picture.png","picture")',"do")
     receive_message()
 
 #recieves cordinations and makes the server to move to them
 def move_to_cords(target_x,target_y):
-    send_message("move_to_cords("+target_x+","+target_y+")","do")
+    send_message("move_to_cords("+str(target_x)+","+str(target_y)+")","do")
 
 #recive a message (string), message type (string) and socket. sends message to socket
 def send_message(message:str,messageType):
@@ -83,7 +91,7 @@ def send_message(message:str,messageType):
     if( messageType != "ok"):
         #confirmation
         print("sent")
-        receive_message(UDPClient)
+        receive_message()
         print("confirmed")
 
 #recive a socket and recive a message from it, acts acording to message type
@@ -106,7 +114,7 @@ def receive_message():
 
         #confirmation
         print("recived")
-        send_message("","ok",UDPClient)
+        send_message("","ok")
         print("sent confirmation")
 
         #do command
@@ -120,26 +128,27 @@ def receive_message():
         data:bytes = b''
 
         #recive all the bytes of the picture
-        length = int(UDPClient.recv(6))
-        for i in range(length):   
+        while b'||||||||||' not in data: 
             data += UDPClient.recv(1024)
+        data=data[:-10]
 
         #save picture
+        print("save picture")
         with open ('Picture.png','wb') as file:
             file.write(data)
 
         #confirmation
         print("recived")
-        send_message("","ok",UDPClient)
+        send_message("","ok")
         print("sent confirmation")         
 
     elif messageType == "info":
 
-        info = UDPClient.recv(1024)
+        info = UDPClient.recv(1024).decode()
 
         #confirmation
         print("recived")
-        send_message("","ok",UDPClient)
+        send_message("","ok")
         print("sent confirmation")
 
         return info

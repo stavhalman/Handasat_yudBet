@@ -1,14 +1,6 @@
-import RPi.GPIO as GPIO
+x = 1
 
-
-button1 = 17
-
-GPIO.setwarnings(False)
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(button1, GPIO.IN)
-
-while True:
-    if(GPIO.input(button1)):
-        print("yay")
-    else:
-        print("no")
+if __name__=="__main__":
+    from test import up
+    up()
+    print(x)
